@@ -11,6 +11,8 @@ def ga():
         population.append(individual)
     print(population)
 
+    # Find fitness of population
+    # Fitness = 12 * mismatches + features
 
 ga()
 
