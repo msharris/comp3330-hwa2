@@ -9,4 +9,4 @@ class Individual:
             self.features.append(random.randrange(0, 2, 1))
 
     def __str__(self):
-        return str(self.features) + str(self.fitness)
+        return str(self.features) + " " + str(self.fitness)
