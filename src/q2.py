@@ -1,15 +1,16 @@
 import random
 
+from Individual import Individual
+
 
 def ga():
     # Initialise the population
     population = list()
-    for i in range(31):
-        individual = list()
-        for j in range(12):
-            individual.append(random.randrange(0, 2, 1))
-        population.append(individual)
-    print(population)
+    for _ in range(31):
+        i = Individual()
+        population.append(i)
+    for i in population:
+        print(i)
 
     # Find fitness of population
     # Fitness = 12 * mismatches + features
