@@ -9,6 +9,7 @@ def ga():
     for _ in range(31):
         i = Individual()
         population.append(i)
+    population.sort(key=lambda individual: individual.fitness)
     for i in population:
         print(i)
 
