@@ -33,8 +33,7 @@ def golf_fitness(population):
     pop_fitness = 0
     for i in population:
         features = i.count(1)
-        #mismatches = numberOfMatches(i)
-        mismatches = 0
+        mismatches = matches(i)
         i.fitness = 12 * mismatches + features
         pop_fitness += i.fitness
     return pop_fitness/len(population)
@@ -46,8 +45,7 @@ def regular_fitness(population,constant):
     for i in population:
         cost = i.features.count(1)
         print(cost)
-        #mismatches = numberOfMatches(1)
-        mismatches = 0
+        mismatches = matches(1)
         accuracy = constant/(mismatches+1)
         print(accuracy)
         i.fitness = (accuracy+(cost/(accuracy+1))+cost)
