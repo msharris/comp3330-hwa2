@@ -5,12 +5,13 @@ from Example import Example
 
 def fitness(population):
     # fitness = 12 * mismatches + features
-    print("Hello")
+    # print("Hello")
+    i = 0;
 
 def sortPopn(population):
     population.sort(key=lambda individual: individual.fitness, reverse=False)
-    for i in population:
-        print(i)
+# for i in population:
+#     print(i)
 
 
 examples = []
@@ -27,6 +28,39 @@ with open('../dataset.csv') as csvfile:
         elif e.target == 1:
             class1.append(e)
         print(e)
+    # Initialise the population
+    population = []
+    for _ in range(31):
+        population.append(Individual())
+    sortPopn(population)
+    # parent selection
+    # however, we need to decide how many we want to cull from population
+    # before determining how many children we can produce
+    newPopn = []
+    for i in range(len(population)):
+        parent1Val = random.randrange(0, len(population))
+        parent2Val = random.randrange(0, len(population))
+        while parent2Val == parent1Val:
+            parent2Val = random.randrange(0, len(population))
+    # crossover (10% chance of crossover)
+        crossover = random.randrange(0,100)
+        if crossover<10:
+            tempFeatures = []
+            #append first half of features from parent1
+            print("Parent 1:")
+            print(population[parent1Val])
+            # tempFeatures.append(population[parent1Val].features[0:len(population[parent1Val].features)/2])
+            for i in range(0,len(population[parent1Val].features)/2):
+                tempFeatures.append(population[parent1Val].features[i])
+            #append second half of features from parent2
+            print("Parent 2:")
+            print(population[parent2Val])
+            # tempFeatures.append(population[parent2Val].features[len(population[parent1Val].features)/2:])
+            for i in range(len(population[parent1Val].features)/2, len(population[parent1Val].features)):
+                tempFeatures.append(population[parent2Val].features[i])
+            print("Child")
+            print(tempFeatures)
+    # population.sort(key=lambda individual: individual.fitness)
 
 
 def golf_fitness(population):
@@ -67,31 +101,6 @@ def matches(individual):
             if f1 == f0:
                 matches += 1
     return matches
-
-
-def ga():
-    # Initialise the population
-    population = []
-    for _ in range(31):
-        population.append(Individual())
-    sortPopn(population)
-    # parent selection
-    # however, we need to decide how many we want to cull from population
-    # before determining how many children we can produce
-    parent1Val = random.randrange(0, len(population))
-    parent2Val = random.randrange(0, len(population))
-    while parent2Val == parent1Val:
-        parent2Val = random.randrange(0, len(population))
-
-    # population.sort(key=lambda individual: individual.fitness)
-    # for i in population:
-    #     print(i)
-
-    # Find fitness of population
-    fitness(population)
-
-def sortPopn(population):
-    population.sort(key=lambda x: x.fitness, reverse=True)
 
 # GA()
 #   initialize population
