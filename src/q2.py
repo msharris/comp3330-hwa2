@@ -1,20 +1,25 @@
-import random
-
 from Individual import Individual
+
+
+def fitness(population):
+    # fitness = 12 * mismatches + features
+    print("Hello")
 
 
 def ga():
     # Initialise the population
-    population = list()
+    population = []
     for _ in range(31):
         i = Individual()
         population.append(i)
-    population.sort(key=lambda individual: individual.fitness)
-    for i in population:
-        print(i)
+
+    # population.sort(key=lambda individual: individual.fitness)
+    # for i in population:
+    #     print(i)
 
     # Find fitness of population
-    # Fitness = 12 * mismatches + features
+    fitness(population)
+
 
 ga()
 
