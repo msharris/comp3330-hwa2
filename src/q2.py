@@ -4,7 +4,7 @@ import csv
 examples = []
 class1 = []
 class0 = []
-with open('../dataset.csv', 'rb') as csvfile:
+with open('../dataset.csv', 'r') as csvfile:
     spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
     next(spamreader, None)  # skip the headers
     for row in spamreader:
@@ -19,10 +19,35 @@ with open('../dataset.csv', 'rb') as csvfile:
 
 
 
-def fitness(population):
+def golf_fitness(population):
+    pop_fitness = 0
+    for i in population:
+        features = i.count(1)
+        #mismatches = numberOfMatches(i)
+        mismatches = 0
+        i.fitness = 12 * mismatches + features
+        pop_fitness += i.fitness
+    return pop_fitness/len(population)
     # fitness = 12 * mismatches + features
     print("Hello")
 
+def regular_fitness(population,constant):
+    pop_fitness = 0
+    for i in population:
+        cost = i.features.count(1)
+        print(cost)
+        #mismatches = numberOfMatches(1)
+        mismatches = 0
+        accuracy = constant/(mismatches+1)
+        print(accuracy)
+        i.fitness = (accuracy+(cost/(accuracy+1))+cost)
+        pop_fitness += i.fitness
+        print(i.fitness)
+    return pop_fitness/len(population)
+
+ind = Individual()
+print(ind)
+regular_fitness([ind],30)
 
 def ga():
     # Initialise the population
