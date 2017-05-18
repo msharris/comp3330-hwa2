@@ -1,6 +1,18 @@
+import csv
+import random
 from Individual import Individual
 from Example import Example
-import csv
+
+def fitness(population):
+    # fitness = 12 * mismatches + features
+    print("Hello")
+
+def sortPopn(population):
+    population.sort(key=lambda individual: individual.fitness, reverse=False)
+    for i in population:
+        print(i)
+
+
 examples = []
 class1 = []
 class0 = []
@@ -10,6 +22,7 @@ with open('../dataset.csv', 'r') as csvfile:
     for row in spamreader:
         examples.append(Example(row))
         # print ', '.join(row)
+    #separate examples which have different targets
     for i in examples:
         if i.target == 0:
             class0.append(i)
@@ -54,16 +67,15 @@ def ga():
     population = []
     for _ in range(31):
         population.append(Individual())
+    sortPopn(population)
+    # parent selection
+    # however, we need to decide how many we want to cull from population
+    # before determining how many children we can produce
+    parent1Val = random.randrange(0, len(population))
+    parent2Val = random.randrange(0, len(population))
+    while parent2Val == parent1Val:
+        parent2Val = random.randrange(0, len(population))
 
-    # population.sort(key=lambda individual: individual.fitness)
-    # for i in population:
-    #     print(i)
-
-    # Find fitness of population
-    fitness(population)
-
-def sortPopn(population):
-    population.sort(key=lambda x: x.fitness, reverse=True)
 
 # GA()
 #   initialize population
@@ -73,7 +85,7 @@ def sortPopn(population):
 #     parent selection
 #     crossover with probability pc
 #     mutation with probability pm
-#     decode and fitness calculation
+#     fitness calculation
 #     survivor selection
 #     find best
 #
