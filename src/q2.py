@@ -37,7 +37,7 @@ def ga():
     # Find fitness of population
     fitness(population)
 
-def sortPopn(population)
+def sortPopn(population):
     population.sort(key=lambda x: x.fitness, reverse=True)
 
 # GA()
