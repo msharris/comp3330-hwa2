@@ -1,4 +1,22 @@
 from Individual import Individual
+from Example import Example
+import csv
+examples = []
+class1 = []
+class0 = []
+with open('../dataset.csv', 'rb') as csvfile:
+    spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
+    next(spamreader, None)  # skip the headers
+    for row in spamreader:
+        examples.append(Example(row))
+        # print ', '.join(row)
+    for i in examples:
+        if i.target == 0:
+            class0.append(i)
+        elif i.target == 1:
+            class1.append(i)
+        print(i)
+
 
 
 def fitness(population):
@@ -10,8 +28,7 @@ def ga():
     # Initialise the population
     population = []
     for _ in range(31):
-        i = Individual()
-        population.append(i)
+        population.append(Individual())
 
     # population.sort(key=lambda individual: individual.fitness)
     # for i in population:
@@ -20,9 +37,8 @@ def ga():
     # Find fitness of population
     fitness(population)
 
-
-ga()
-
+def sortPopn(population)
+    population.sort(key=lambda x: x.fitness, reverse=True)
 
 # GA()
 #   initialize population
