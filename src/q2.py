@@ -35,6 +35,8 @@ with open('../dataset.csv', 'r') as csvfile:
         population.append(Individual())
     sortPopn(population)
     # parent selection
+    # however, we need to decide how many we want to cull from population
+    # before determining how many children we can produce
     parent1Val = random.randrange(0, len(population))
     parent2Val = random.randrange(0, len(population))
     while parent2Val == parent1Val:
