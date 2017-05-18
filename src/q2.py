@@ -17,19 +17,17 @@ def sortPopn(population):
 examples = []
 class1 = []
 class0 = []
-with open('../dataset.csv', 'r') as csvfile:
-    spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
-    next(spamreader, None)  # skip the headers
-    for row in spamreader:
+with open('../dataset.csv') as csvfile:
+    dataset = csv.reader(csvfile)
+    next(dataset)  # skip the headers
+    for row in dataset:
         examples.append(Example(row))
-        # print ', '.join(row)
-    #separate examples which have different targets
-    for i in examples:
-        if i.target == 0:
-            class0.append(i)
-        elif i.target == 1:
-            class1.append(i)
-        # print(i) #troubleshoot printing
+    for e in examples:
+        if e.target == 0:
+            class0.append(e)
+        elif e.target == 1:
+            class1.append(e)
+        print(e)
     # Initialise the population
     population = []
     for _ in range(31):
@@ -62,7 +60,49 @@ with open('../dataset.csv', 'r') as csvfile:
                 tempFeatures.append(population[parent2Val].features[i])
             print("Child")
             print(tempFeatures)
+    # population.sort(key=lambda individual: individual.fitness)
 
+
+def golf_fitness(population):
+    pop_fitness = 0
+    for i in population:
+        features = i.count(1)
+        #mismatches = numberOfMatches(i)
+        mismatches = 0
+        i.fitness = 12 * mismatches + features
+        pop_fitness += i.fitness
+    return pop_fitness/len(population)
+    # fitness = 12 * mismatches + features
+    print("Hello")
+
+def regular_fitness(population,constant):
+    pop_fitness = 0
+    for i in population:
+        cost = i.features.count(1)
+        print(cost)
+        #mismatches = numberOfMatches(1)
+        mismatches = 0
+        accuracy = constant/(mismatches+1)
+        print(accuracy)
+        i.fitness = (accuracy+(cost/(accuracy+1))+cost)
+        pop_fitness += i.fitness
+        print(i.fitness)
+    return pop_fitness/len(population)
+
+ind = Individual()
+print(ind)
+regular_fitness([ind],30)
+
+def matches(individual):
+    features = [f for f, g in enumerate(individual.features) if g == 1]  # Get the features present in individual
+    matches = 0
+    for e1 in class1:  # For each example in class 1
+        f1 = [e1.features[f] for f in features]  #
+        for e0 in class0:
+            f0 = [e0.features[f] for f in features]
+            if f1 == f0:
+                matches += 1
+    return matches
 
 # GA()
 #   initialize population
