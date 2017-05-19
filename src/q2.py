@@ -29,7 +29,7 @@ def golf_fitness(population):
 
 def regular_fitness(population, constant):
     pop_fitness = 0
-    cost_max = len(population[0]) # Assumes that all members of population have the same size genotype.
+    cost_max = len(population[0])  # Assumes that all members of population have the same size genotype.
     for i in population:
         cost = i.features.count(1)
         accuracy = constant / (conflicts(i) + 1)
@@ -117,19 +117,25 @@ print(*examples, sep='\n')
 
 # Initialise the population
 population = []
-for _ in range(30):
+for _ in range(100):
     population.append(Individual())
 
 # Find fitness of population
 total_fitness, avg_fitness = fitness(population, golf=True)
 sort(population)
 
+print("Generation: 0")
+print("Population size: ", len(population))
+print("Average fitness: ", avg_fitness)
+print("Best solution: ", population[0])
+print()
+
 # TODO Determine termination criteria
 generation = 1
-while population[0].fitness > 5:
+while population[0].fitness > 12:
     # Generate a new population
     new_pop = []
-    for _ in range(len(population)):
+    for _ in range(int(len(population) / 2)):
         # Perform parent selection
         parent1, parent2 = parent_selection(population)
 
@@ -144,14 +150,17 @@ while population[0].fitness > 5:
         new_pop.extend([child1, child2])
 
     # Replace old population with new population
-    population = new_pop
+    population = copy.copy(new_pop)
+    new_pop.clear()
 
     # Find fitness of population
     total_fitness, avg_fitness = fitness(population, golf=True)
     sort(population)
     print("Generation: ", generation)
+    print("Population size: ", len(population))
     print("Average fitness: ", avg_fitness)
     print("Best solution: ", population[0])
+    print()
     generation += 1
 
     # TODO Decide how many individuals to remove from the population before determining how many children we can produce
