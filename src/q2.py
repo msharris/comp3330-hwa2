@@ -71,17 +71,43 @@ def parent_selection(population):
     return parents[0], parents[1]
 
 
-def crossover(parent1, parent2, pc=0.75):
+def crossover(parent1, parent2, op='1-point', n=1, pc=0.75):
     # Create children
     child1 = copy.deepcopy(parent1)
     child2 = copy.deepcopy(parent2)
     child1.fitness = None
     child2.fitness = None
     if random.random() < pc:
-        point = random.randint(1, len(parent1.features) - 1)
-        child2.features[point:] = parent1.features[point:]
-        child1.features[point:] = parent2.features[point:]
+        if op == '1-point':
+            op, n = 'n-point', 1  # Perform n-point crossover with n = 1
+        if op == 'n-point':
+            points = random.sample(range(1, len(parent1.features)), n)  # Generate crossover points
+            points.sort()  # Sort the crossover points
+            points = [0] + points + [len(parent1.features)]  # Add the beginning and end indexes to create range tuples
+            tuples = list(zip(points, points[1:]))  # Generate range tuples
+            swap_zones = tuples[1::2]  # Grab every second range to swap alternating ranges
+            for left, right in swap_zones:
+                child2.features[left:right] = parent1.features[left:right]
+                child1.features[left:right] = parent2.features[left:right]
+        if op == 'uniform':
+            # Each feature has a 50% chance swap
+            for i in range(len(child1.features)):
+                if random.choice([True, False]):
+                    child1.features[i], child2.features[i] = child2.features[i], child1.features[i]
     return child1, child2
+
+
+# def crossover(parent1, parent2, pc=0.75):
+#     # Create children
+#     child1 = copy.deepcopy(parent1)
+#     child2 = copy.deepcopy(parent2)
+#     child1.fitness = None
+#     child2.fitness = None
+#     if random.random() < pc:
+#         point = random.randint(1, len(parent1.features) - 1)
+#         child2.features[point:] = parent1.features[point:]
+#         child1.features[point:] = parent2.features[point:]
+#     return child1, child2
 
 
 def mutation(child, pm=0.05):
@@ -117,7 +143,7 @@ print(*examples, sep='\n')
 
 # Initialise the population
 population = []
-for _ in range(100):
+for _ in range(20):
     population.append(Individual())
 
 # Find fitness of population
@@ -132,7 +158,7 @@ print()
 
 # TODO Determine termination criteria
 generation = 1
-while population[0].fitness > 12:
+while population[0].fitness > 5:
     # Generate a new population
     new_pop = []
     for _ in range(int(len(population) / 2)):
@@ -140,7 +166,7 @@ while population[0].fitness > 12:
         parent1, parent2 = parent_selection(population)
 
         # Perform crossover with probability pc
-        child1, child2 = crossover(parent1, parent2, pc=0.75)
+        child1, child2 = crossover(parent1, parent2, op='1-point', pc=0.75)
 
         # Perform mutation with probability pm
         mutation(child1, pm=0.05)
