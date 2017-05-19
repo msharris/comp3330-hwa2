@@ -110,10 +110,17 @@ def crossover(parent1, parent2, op='1-point', n=1, pc=0.75):
 #     return child1, child2
 
 
-def mutation(child, pm=0.05):
-    for i in range(len(child.features)):
-        if random.random() < pm:
-            child.features[i] = 1 - child.features[i]
+def mutation(child, op='default', pm=0.1):
+    if op == 'default':
+        for i in range(len(child.features)):
+            if random.random() < pm:
+                child.features[i] = 1 - child.features[i]
+    else:
+        if random.random() < pm and op in ['1-flip', 'multi-flip']:
+            flips = 1 if op == '1-flip' else random.randrange(len(child.features))
+            flip_points = random.sample(range(len(parent1.features)), flips)  # Generate flipping points
+            for p in flip_points:
+                child.features[p] = 1 - child.features[p]
 
 
 # Read in the dataset
