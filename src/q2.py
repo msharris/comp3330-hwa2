@@ -29,10 +29,11 @@ def golf_fitness(population):
 
 def regular_fitness(population, constant):
     pop_fitness = 0
+    cost_max = len(population[0]) # Assumes that all members of population have the same size genotype.
     for i in population:
         cost = i.features.count(1)
         accuracy = constant / (conflicts(i) + 1)
-        i.fitness = (accuracy + (cost / (accuracy + 1)) + cost)
+        i.fitness = (accuracy + (cost / (accuracy + 1)) + cost_max)
         pop_fitness += i.fitness
     return pop_fitness, pop_fitness / len(population)
 
