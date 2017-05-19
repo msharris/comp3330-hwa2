@@ -1,42 +1,84 @@
 import csv
 import random
+
 from Example import Example
 from Individual import Individual
-
-
-def fitness(population):
-    # fitness = 12 * mismatches + features
-    i = 0
 
 
 def sort(population):
     population.sort(key=lambda individual: individual.fitness, reverse=False)
 
 
+def fitness(population, golf=False, constant=1):
+    if golf:
+        return golf_fitness(population)
+    else:
+        return regular_fitness(population, constant)
+
+
+def golf_fitness(population):
+    pop_fitness = 0
+    for i in population:
+        features = i.features.count(1)
+        matches = matches(i)
+        i.fitness = 12 * matches + features
+        pop_fitness += i.fitness
+    return pop_fitness / len(population)
+
+
+def regular_fitness(population, constant):
+    pop_fitness = 0
+    for i in population:
+        cost = i.features.count(1)
+        accuracy = constant / (matches(i) + 1)
+        i.fitness = (accuracy + (cost / (accuracy + 1)) + cost)
+        pop_fitness += i.fitness
+    return pop_fitness / len(population)
+
+
+def matches(individual):
+    features = [f for f, g in enumerate(individual.features) if g == 1]  # Get the features present in individual
+    matches = 0
+    for e1 in class1:  # For each example in class 1
+        f1 = [e1.features[f] for f in features]  # Obtain the feature set
+        for e0 in class0:  # For each example in class 0
+            f0 = [e0.features[f] for f in features]  # Obtain the feature set
+            if f1 == f0:  # Count a match if both feature sets are identical
+                matches += 1
+    return matches
+
+
+# Read in the dataset
 examples = []
-class1 = []
-class0 = []
-with open('../dataset.csv') as csvfile:
-    dataset = csv.reader(csvfile)
+with open('../dataset.csv') as csv_file:
+    dataset = csv.reader(csv_file)
     next(dataset)  # Skip the header row
     for row in dataset:
         examples.append(Example(row))
-    for e in examples:
-        if e.target == 0:
-            class0.append(e)
-        elif e.target == 1:
-            class1.append(e)
-    print('Examples:')
-    print(*examples, sep='\n')  # Print examples for debugging purposes
+
+# Classify each example
+class1 = []
+class0 = []
+for e in examples:
+    if e.target == 1:
+        class1.append(e)
+    elif e.target == 0:
+        class0.append(e)
+
+# Print examples for debugging
+print('Examples:')
+print(*examples, sep='\n')
+
+
+# BEGIN GENETIC ALGORITHM
 
 # Initialise the population
 population = []
 for _ in range(31):
     population.append(Individual())
-sort(population)
 
 # Find fitness of population
-# Code goes here...
+fitness = fitness(population)
 
 # parent selection
 # however, we need to decide how many we want to cull from population
@@ -65,49 +107,7 @@ for i in range(len(population)):
             tempFeatures.append(population[parent2Val].features[i])
         print("Child")
         print(tempFeatures)
-# population.sort(key=lambda individual: individual.fitness)
 
-
-def golf_fitness(population):
-    pop_fitness = 0
-    for i in population:
-        features = i.count(1)
-        #mismatches = numberOfMatches(i)
-        mismatches = 0
-        i.fitness = 12 * mismatches + features
-        pop_fitness += i.fitness
-    return pop_fitness/len(population)
-    # fitness = 12 * mismatches + features
-    print("Hello")
-
-def regular_fitness(population,constant):
-    pop_fitness = 0
-    for i in population:
-        cost = i.features.count(1)
-        print(cost)
-        #mismatches = numberOfMatches(1)
-        mismatches = 0
-        accuracy = constant/(mismatches+1)
-        print(accuracy)
-        i.fitness = (accuracy+(cost/(accuracy+1))+cost)
-        pop_fitness += i.fitness
-        print(i.fitness)
-    return pop_fitness/len(population)
-
-ind = Individual()
-print(ind)
-regular_fitness([ind],30)
-
-def matches(individual):
-    features = [f for f, g in enumerate(individual.features) if g == 1]  # Get the features present in individual
-    matches = 0
-    for e1 in class1:  # For each example in class 1
-        f1 = [e1.features[f] for f in features]  #
-        for e0 in class0:
-            f0 = [e0.features[f] for f in features]
-            if f1 == f0:
-                matches += 1
-    return matches
 
 # GA()
 #   initialize population
