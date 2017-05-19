@@ -9,4 +9,5 @@ class Individual:
             self.features.append(random.randrange(0, 2, 1))
 
     def __str__(self):
-        return str(self.features) + " " + str(self.fitness)
+        feature_set = [f + 1 for f, g in enumerate(self.features) if g == 1]
+        return str(feature_set) + " " + str(self.fitness)
