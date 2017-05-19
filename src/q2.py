@@ -1,3 +1,4 @@
+import copy
 import csv
 import random
 
@@ -20,23 +21,23 @@ def golf_fitness(population):
     pop_fitness = 0
     for i in population:
         features = i.features.count(1)
-        matches = matches(i)
+        matches = conflicts(i)
         i.fitness = 12 * matches + features
         pop_fitness += i.fitness
-    return pop_fitness / len(population)
+    return pop_fitness, pop_fitness / len(population)
 
 
 def regular_fitness(population, constant):
     pop_fitness = 0
     for i in population:
         cost = i.features.count(1)
-        accuracy = constant / (matches(i) + 1)
+        accuracy = constant / (conflicts(i) + 1)
         i.fitness = (accuracy + (cost / (accuracy + 1)) + cost)
         pop_fitness += i.fitness
-    return pop_fitness / len(population)
+    return pop_fitness, pop_fitness / len(population)
 
 
-def matches(individual):
+def conflicts(individual):
     features = [f for f, g in enumerate(individual.features) if g == 1]  # Get the features present in individual
     matches = 0
     for e1 in class1:  # For each example in class 1
@@ -46,6 +47,46 @@ def matches(individual):
             if f1 == f0:  # Count a match if both feature sets are identical
                 matches += 1
     return matches
+
+
+def parent_selection(population):
+    # Get total population fitness and sort the population
+    total_fitness, _ = fitness(population, golf=True)
+    sort(population)
+
+    # Begin parent selection
+    parents = []
+    for _ in range(2):
+        r = random.uniform(0, total_fitness)
+        p = 0
+        for i in population:
+            if p + i.fitness > r:
+                parents.append(i)
+                break
+            else:
+                p += i.fitness
+
+    # Return parents
+    return parents[0], parents[1]
+
+
+def crossover(parent1, parent2, pc=0.75):
+    # Create children
+    child1 = copy.deepcopy(parent1)
+    child2 = copy.deepcopy(parent2)
+    child1.fitness = None
+    child2.fitness = None
+    if random.random() < pc:
+        point = random.randint(1, len(parent1.features) - 1)
+        child2.features[point:] = parent1.features[point:]
+        child1.features[point:] = parent2.features[point:]
+    return child1, child2
+
+
+def mutation(child, pm=0.05):
+    for i in range(len(child.features)):
+        if random.random() < pm:
+            child.features[i] = 1 - child.features[i]
 
 
 # Read in the dataset
@@ -72,48 +113,54 @@ print(*examples, sep='\n')
 
 # BEGIN GENETIC ALGORITHM
 
+
 # Initialise the population
 population = []
-for _ in range(31):
+for _ in range(30):
     population.append(Individual())
 
 # Find fitness of population
-fitness = fitness(population)
+total_fitness, avg_fitness = fitness(population, golf=True)
+sort(population)
 
-# parent selection
-# however, we need to decide how many we want to cull from population
-# before determining how many children we can produce
-newPopn = []
-for i in range(len(population)):
-    parent1Val = random.randrange(0, len(population))
-    parent2Val = random.randrange(0, len(population))
-    while parent2Val == parent1Val:
-        parent2Val = random.randrange(0, len(population))
-# crossover (10% chance of crossover)
-    crossover = random.randrange(0,100)
-    if crossover<10:
-        tempFeatures = []
-        #append first half of features from parent1
-        print("Parent 1:")
-        print(population[parent1Val])
-        # tempFeatures.append(population[parent1Val].features[0:len(population[parent1Val].features)/2])
-        for i in range(0, int(len(population[parent1Val].features)/2)):
-            tempFeatures.append(population[parent1Val].features[i])
-        #append second half of features from parent2
-        print("Parent 2:")
-        print(population[parent2Val])
-        # tempFeatures.append(population[parent2Val].features[len(population[parent1Val].features)/2:])
-        for i in range(int(len(population[parent1Val].features)/2), len(population[parent1Val].features)):
-            tempFeatures.append(population[parent2Val].features[i])
-        print("Child")
-        print(tempFeatures)
+# TODO Determine termination criteria
+generation = 1
+while population[0].fitness > 5:
+    # Generate a new population
+    new_pop = []
+    for _ in range(len(population)):
+        # Perform parent selection
+        parent1, parent2 = parent_selection(population)
+
+        # Perform crossover with probability pc
+        child1, child2 = crossover(parent1, parent2, pc=0.75)
+
+        # Perform mutation with probability pm
+        mutation(child1, pm=0.05)
+        mutation(child2, pm=0.05)
+
+        # Add children to new population
+        new_pop.extend([child1, child2])
+
+    # Replace old population with new population
+    population = new_pop
+
+    # Find fitness of population
+    total_fitness, avg_fitness = fitness(population, golf=True)
+    sort(population)
+    print("Generation: ", generation)
+    print("Average fitness: ", avg_fitness)
+    print("Best solution: ", population[0])
+    generation += 1
+
+    # TODO Decide how many individuals to remove from the population before determining how many children we can produce
 
 
 # GA()
 #   initialize population
 #   find fitness of population
 #
-#   while (termination criteria is reached) do
+#   while (termination criteria is not reached) do
 #     parent selection
 #     crossover with probability pc
 #     mutation with probability pm
@@ -122,4 +169,3 @@ for i in range(len(population)):
 #     find best
 #
 #   return best
-
