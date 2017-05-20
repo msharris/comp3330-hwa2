@@ -14,6 +14,6 @@ with open('../dataset.csv') as csv_file:
         examples.append(e)
 
 # Question 2
-ga.ga(examples, pop_size=2, min_features=4, max_gen=100,
-      crossover_op='1-point', n=1, pc=0.75,
-      mutation_op='default', pm=0.075)
+ga.ga(examples, pop_size=4, min_features=5, max_gen=5000,
+      crossover_op='1-point', n=1, pc=0.075,
+      mutation_op='default', pm=0.0075)

@@ -41,7 +41,7 @@ def ga(examples, pop_size, min_features=5, max_gen=1000,
     generation = 0
 
     # Determine the fitness we should converge at
-    convergence_fitness = (len(class0[0].features) * (len(class1)*len(class0)) + len(class0[0].features)) - min_features
+    convergence_fitness = min_features  #(len(class0[0].features) * (len(class1)*len(class0)) + len(class0[0].features)) - min_features
 
     # Find fitness of population
     average_fitness, _ = fitness(population)
@@ -78,7 +78,7 @@ def ga(examples, pop_size, min_features=5, max_gen=1000,
         generation += 1
         print_generation(generation, population, average_fitness)
 
-    if generation >= max_gen and population[0].fitness < convergence_fitness:
+    if generation >= max_gen and population[0].fitness > convergence_fitness:
         print("The algorithm did not converge within", max_gen, "generations.")
 
     # Plot convergence curves
@@ -133,8 +133,8 @@ def fitness(population):
         golf_fitness = total_features * matches + present_features
 
         # We want a higher value to be better so inverse the fitness in relation to the highest possible golf_fitness
-        worst_fitness = total_features * (len(class1) * len(class0)) + total_features
-        i.fitness = worst_fitness - golf_fitness
+        #worst_fitness = total_features * (len(class1) * len(class0)) + total_features
+        i.fitness = golf_fitness  # worst_fitness / golf_fitness
 
         total_fitness += i.fitness
     sort(population)
@@ -154,7 +154,7 @@ def conflicts(individual):
 
 
 def sort(population):
-    population.sort(key=lambda individual: individual.fitness, reverse=True)
+    population.sort(key=lambda individual: individual.fitness, reverse=False)
 
 
 def print_generation(generation, population, average_fitness):
@@ -169,28 +169,41 @@ def print_generation(generation, population, average_fitness):
 # TODO Determine other termination criteria?
 def terminate(population, generation, convergence_fitness, max_gen):
     sort(population)
-    return population[0].fitness >= convergence_fitness or generation >= max_gen
+    return population[0].fitness <= convergence_fitness and generation >= max_gen
 
 
 def parent_selection(population):
     # Get total population fitness and sort the population
     _, total_fitness = fitness(population)
     sort(population)
+    roulette_wheel = []
+    total_roulette_size = 0
+    for res in population:
+        roulette_wheel.append((total_fitness/res.fitness))
+        total_roulette_size += total_fitness/res.fitness
+
+    print(total_roulette_size)
+    i = 0
+    for val in roulette_wheel:
+        print(val, " ", population[i].fitness)
+
 
     # Begin parent selection
     mating_pool = []
     for _ in range(int(len(population) / 2)):
         parents = []
         while len(parents) < 2:
-            r = random.uniform(0, total_fitness)
+            r = random.uniform(0, total_roulette_size)
             p = 0
-            for i in population:
-                if p + i.fitness > r:
-                    if i not in parents:
-                        parents.append(i)
+            index = 0
+            for i in roulette_wheel:
+                if p + i > r:
+                    if population[index] not in parents:
+                        parents.append(population[index])
                     break
                 else:
-                    p += i.fitness
+                    p += i
+                    index += 1
         mating_pool.append(parents)
     return mating_pool
 
