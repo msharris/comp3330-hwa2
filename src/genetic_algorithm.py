@@ -1,13 +1,102 @@
 import copy
-import csv
 import random
 
-from Example import Example
-from Individual import Individual
+
+class Example:
+    def __init__(self, row):
+        self.label = str(row[0])
+        self.features = list(map(int, row[1:-1]))
+        self.target = int(row[-1])
+
+    def __str__(self):
+        return str(self.label) + " " + str(self.features) + " " + str(self.target)
 
 
-def sort(population):
-    population.sort(key=lambda individual: individual.fitness, reverse=False)
+class Individual:
+    def __init__(self):
+        self.fitness = None
+        self.features = []
+        for _ in range(12):
+            self.features.append(random.randrange(0, 2, 1))
+
+    def __str__(self):
+        feature_set = [f + 1 for f, g in enumerate(self.features) if g == 1]
+        return str(feature_set) + " " + str(self.fitness)
+
+
+# Declare class lists globally for ease of use
+class0, class1 = [], []
+
+
+def ga(examples, pop_size, crossover_op='1-point', n=1, pc=0.75, mutation_op='default', pm=0.075):
+    # Classify each example
+    classify(examples)
+
+    # Initialise population
+    population = init_population(pop_size)
+    generation = 0
+
+    # Find fitness of population
+    _, avg_fitness = fitness(population, golf=True)
+
+    # Print the characteristics of the initial population
+    print_generation(generation, population, avg_fitness)
+
+    while not terminate(population, generation):
+        # Generate a new population
+        children = []
+        for _ in range(int(len(population) / 2)):
+            # Perform parent selection
+            parent1, parent2 = parent_selection(population)
+
+            # Perform crossover with probability pc
+            child1, child2 = crossover(parent1, parent2, crossover_op, n, pc)
+
+            # Perform mutation with probability pm
+            mutation(child1, op=mutation_op, pm=pm)
+            mutation(child2, op=mutation_op, pm=pm)
+
+            # Add children to list
+            children.extend([child1, child2])
+
+        # Perform survivor selection
+        population = survivor_selection(population, children)
+
+        # Find fitness of new population
+        _, avg_fitness = fitness(population, golf=True)
+        print_generation(generation, population, avg_fitness)
+        generation += 1
+
+        # GA()
+        #   initialize population
+        #   find fitness of population
+        #
+        #   while (termination criteria is not reached) do
+        #     parent selection
+        #     crossover with probability pc
+        #     mutation with probability pm
+        #     fitness calculation
+        #     survivor selection
+        #     find best
+        #
+        #   return best
+
+
+def classify(examples):
+    for e in examples:
+        if e.target == 0:
+            class0.append(e)
+        elif e.target == 1:
+            class1.append(e)
+    return class0, class1
+
+
+def init_population(size):
+    pop = []
+    for _ in range(size):
+        i = Individual()
+        pop.append(i)
+    return pop
 
 
 def fitness(population, golf=False, constant=1):
@@ -48,6 +137,25 @@ def conflicts(individual):
             if f1 == f0:  # Count a match if both feature sets are identical
                 matches += 1
     return matches
+
+
+def sort(population):
+    population.sort(key=lambda individual: individual.fitness, reverse=False)
+
+
+def print_generation(generation, population, average_fitness):
+    print("Generation: ", generation)
+    print("Population size: ", len(population))
+    print("Average fitness: ", average_fitness)
+    sort(population)
+    print("Best solution: ", population[0])
+    print()
+
+
+# TODO Determine termination criteria
+def terminate(population, generation):
+    sort(population)
+    return population[0].fitness <= 5 or generation >= 1000
 
 
 def parent_selection(population):
@@ -97,19 +205,6 @@ def crossover(parent1, parent2, op='1-point', n=1, pc=0.75):
     return child1, child2
 
 
-# def crossover(parent1, parent2, pc=0.75):
-#     # Create children
-#     child1 = copy.deepcopy(parent1)
-#     child2 = copy.deepcopy(parent2)
-#     child1.fitness = None
-#     child2.fitness = None
-#     if random.random() < pc:
-#         point = random.randint(1, len(parent1.features) - 1)
-#         child2.features[point:] = parent1.features[point:]
-#         child1.features[point:] = parent2.features[point:]
-#     return child1, child2
-
-
 def mutation(child, op='default', pm=0.1):
     if op == 'default':
         for i in range(len(child.features)):
@@ -118,97 +213,12 @@ def mutation(child, op='default', pm=0.1):
     else:
         if random.random() < pm and op in ['1-flip', 'multi-flip']:
             flips = 1 if op == '1-flip' else random.randrange(len(child.features))
-            flip_points = random.sample(range(len(parent1.features)), flips)  # Generate flipping points
+            flip_points = random.sample(range(len(child.features)), flips)  # Generate flipping points
             for p in flip_points:
                 child.features[p] = 1 - child.features[p]
 
 
-# Read in the dataset
-examples = []
-with open('../dataset.csv') as csv_file:
-    dataset = csv.reader(csv_file)
-    next(dataset)  # Skip the header row
-    for row in dataset:
-        examples.append(Example(row))
-
-# Classify each example
-class1 = []
-class0 = []
-for e in examples:
-    if e.target == 1:
-        class1.append(e)
-    elif e.target == 0:
-        class0.append(e)
-
-# Print examples for debugging
-print('Examples:')
-print(*examples, sep='\n')
-
-
-# BEGIN GENETIC ALGORITHM
-
-
-# Initialise the population
-population = []
-for _ in range(20):
-    population.append(Individual())
-
-# Find fitness of population
-total_fitness, avg_fitness = fitness(population, golf=True)
-sort(population)
-
-print("Generation: 0")
-print("Population size: ", len(population))
-print("Average fitness: ", avg_fitness)
-print("Best solution: ", population[0])
-print()
-
-# TODO Determine termination criteria
-generation = 1
-while population[0].fitness > 5:
-    # Generate a new population
-    new_pop = []
-    for _ in range(int(len(population) / 2)):
-        # Perform parent selection
-        parent1, parent2 = parent_selection(population)
-
-        # Perform crossover with probability pc
-        child1, child2 = crossover(parent1, parent2, op='1-point', pc=0.75)
-
-        # Perform mutation with probability pm
-        mutation(child1, pm=0.05)
-        mutation(child2, pm=0.05)
-
-        # Add children to new population
-        new_pop.extend([child1, child2])
-
-    # Replace old population with new population
-    population = copy.copy(new_pop)
-    new_pop.clear()
-
-    # Find fitness of population
-    total_fitness, avg_fitness = fitness(population, golf=True)
-    sort(population)
-    print("Generation: ", generation)
-    print("Population size: ", len(population))
-    print("Average fitness: ", avg_fitness)
-    print("Best solution: ", population[0])
-    print()
-    generation += 1
-
-    # TODO Decide how many individuals to remove from the population before determining how many children we can produce
-
-
-# GA()
-#   initialize population
-#   find fitness of population
-#
-#   while (termination criteria is not reached) do
-#     parent selection
-#     crossover with probability pc
-#     mutation with probability pm
-#     fitness calculation
-#     survivor selection
-#     find best
-#
-#   return best
+# TODO Decide on survivor selection technique
+def survivor_selection(population, children):
+    # Replace entire population with children
+    return copy.deepcopy(children)
