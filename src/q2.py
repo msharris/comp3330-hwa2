@@ -33,7 +33,7 @@ def regular_fitness(population, constant):
     for i in population:
         cost = i.features.count(1)
         accuracy = constant / (conflicts(i) + 1)
-        i.fitness = (accuracy + (cost / (accuracy + 1)) + cost_max)
+        i.fitness = (accuracy - (cost / (accuracy + 1)) + cost_max)
         pop_fitness += i.fitness
     return pop_fitness, pop_fitness / len(population)
 
