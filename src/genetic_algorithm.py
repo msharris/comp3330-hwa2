@@ -169,7 +169,7 @@ def print_generation(generation, population, average_fitness):
 # TODO Determine other termination criteria?
 def terminate(population, generation, convergence_fitness, max_gen):
     sort(population)
-    return population[0].fitness <= convergence_fitness and generation >= max_gen
+    return population[0].fitness <= convergence_fitness or generation >= max_gen
 
 
 def parent_selection(population):
