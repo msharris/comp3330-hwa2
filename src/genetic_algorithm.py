@@ -1,6 +1,8 @@
 import copy
 import random
 
+import matplotlib.pyplot as plt
+
 
 class Example:
     def __init__(self, row):
@@ -44,6 +46,10 @@ def ga(examples, pop_size, min_features=5, max_gen=1000,
     # Find fitness of population
     average_fitness, _ = fitness(population)
 
+    # Declare some arrays for plotting convergence curves
+    averages = [average_fitness]
+    bests = [population[0].fitness]
+
     # Print the characteristics of the initial population
     print_generation(generation, population, average_fitness)
 
@@ -67,11 +73,21 @@ def ga(examples, pop_size, min_features=5, max_gen=1000,
 
         # Find fitness of new population
         average_fitness, _ = fitness(population)
+        averages.append(average_fitness)
+        bests.append(population[0].fitness)  # Guaranteed to be sorted via fitness function
         generation += 1
         print_generation(generation, population, average_fitness)
 
     if generation >= max_gen and population[0].fitness < convergence_fitness:
         print("The algorithm did not converge within", max_gen, "generations.")
+
+    # Plot convergence curves
+    plt.plot(averages, label="Average fitness")
+    plt.plot(bests, label="Best fitness")
+    plt.xlabel("Generation")
+    plt.ylabel("Fitness")
+    plt.legend(loc='best')
+    plt.show()
 
     # GA()
     #   initialize population
