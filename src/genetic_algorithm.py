@@ -99,11 +99,11 @@ def init_population(size):
     return pop
 
 
-def fitness(population, golf=False, constant=1):
+def fitness(population, golf=False):
     if golf:
         return golf_fitness(population)
     else:
-        return regular_fitness(population, constant)
+        return regular_fitness(population)
 
 
 def golf_fitness(population):
@@ -116,12 +116,13 @@ def golf_fitness(population):
     return pop_fitness, pop_fitness / len(population)
 
 
-def regular_fitness(population, constant):
+def regular_fitness(population):
+    constant_val = (len(class0) * len(class1))
     pop_fitness = 0
-    cost_max = len(population[0])  # Assumes that all members of population have the same size genotype.
+    cost_max = len(population[0].features)  # Assumes that all members of population have the same size genotype.
     for i in population:
         cost = i.features.count(1)
-        accuracy = constant / (conflicts(i) + 1)
+        accuracy = 100-((conflicts(i)/constant_val)*100)
         i.fitness = (accuracy - (cost / (accuracy + 1)) + cost_max)
         pop_fitness += i.fitness
     return pop_fitness, pop_fitness / len(population)
@@ -155,7 +156,8 @@ def print_generation(generation, population, average_fitness):
 # TODO Determine termination criteria
 def terminate(population, generation):
     sort(population)
-    return population[0].fitness <= 5 or generation >= 1000
+    #score = 100 - (6/101) + len(population[0].features)
+    return population[0].fitness <=5 or generation >= 1000
 
 
 def parent_selection(population):
