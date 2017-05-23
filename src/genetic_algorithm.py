@@ -15,7 +15,7 @@ class Example:
 
 
 class Individual:
-    def __init__(self):
+    def __init__(self, num_features):
         self.fitness = None
         self.features = []
         for _ in range(12):
@@ -37,7 +37,7 @@ def ga(examples, pop_size, min_features=5, max_gen=1000,
     classify(examples)
 
     # Initialise population
-    population = init_population(pop_size)
+    population = init_population(pop_size, len(examples[0].features))
     generation = 0
 
     # Determine the fitness we should converge at
@@ -113,10 +113,10 @@ def classify(examples):
     return class0, class1
 
 
-def init_population(size):
+def init_population(size, num_features):
     pop = []
     for _ in range(size):
-        i = Individual()
+        i = Individual(num_features)
         pop.append(i)
     return pop
 
@@ -182,10 +182,10 @@ def parent_selection(population):
         roulette_wheel.append((total_fitness/res.fitness))
         total_roulette_size += total_fitness/res.fitness
 
-    print(total_roulette_size)
-    i = 0
-    for val in roulette_wheel:
-        print(val, " ", population[i].fitness)
+    # print(total_roulette_size)
+    # i = 0
+    # for val in roulette_wheel:
+    #     print(val, " ", population[i].fitness)
 
 
     # Begin parent selection
