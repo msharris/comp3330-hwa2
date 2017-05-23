@@ -18,7 +18,7 @@ class Individual:
     def __init__(self, num_features):
         self.fitness = None
         self.features = []
-        for _ in range(12):
+        for _ in range(num_features):
             self.features.append(random.randrange(0, 2, 1))
 
     def __str__(self):
