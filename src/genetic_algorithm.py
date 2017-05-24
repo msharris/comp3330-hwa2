@@ -125,20 +125,17 @@ def fitness(population):
     total_fitness = 0
     for i in population:
         # Obtain values for fitness calculation
-        present_features = i.features.count(1)
-        matches = conflicts(i)
-        total_features = len(i.features)
+        present_features = i.features.count(1)  # Number of features present in the individual.
+        matches = conflicts(i)  # Number of conflicts that exist, a measure of accuracy where 0 is the best accuracy.
+        total_features = len(i.features)    # Total possibly feature number.
 
         # Obtain fitness value
         golf_fitness = total_features * matches + present_features
+        i.fitness = golf_fitness  # Set individual fitness.
 
-        # We want a higher value to be better so inverse the fitness in relation to the highest possible golf_fitness
-        #worst_fitness = total_features * (len(class1) * len(class0)) + total_features
-        i.fitness = golf_fitness  # worst_fitness / golf_fitness
-
-        total_fitness += i.fitness
+        total_fitness += i.fitness  # Keep track of the total fitness of the population, to use later.
     sort(population)
-    return total_fitness / len(population), total_fitness
+    return total_fitness / len(population), total_fitness   # Return the average population fitness, and the total population fitness.
 
 
 def conflicts(individual):
@@ -174,18 +171,13 @@ def terminate(population, generation, convergence_fitness, max_gen):
 
 def parent_selection(population):
     # Get total population fitness and sort the population
-    _, total_fitness = fitness(population)
-    sort(population)
-    roulette_wheel = []
+    _, total_fitness = fitness(population)  # Get the total fitness of the population.
+    random.shuffle(population)  # Shuffle the population to get a random spread on the evolution wheel.
+    roulette_wheel = [] # Will hold each fitness' place on the evolution wheel.
     total_roulette_size = 0
     for res in population:
-        roulette_wheel.append((total_fitness/res.fitness))
-        total_roulette_size += total_fitness/res.fitness
-
-    # print(total_roulette_size)
-    # i = 0
-    # for val in roulette_wheel:
-    #     print(val, " ", population[i].fitness)
+        roulette_wheel.append((total_fitness/res.fitness))  # Evaluates a roulette wheel value and gives the individual a proportional chunk of the wheel.
+        total_roulette_size += total_fitness/res.fitness    # keeps track of the total size of the wheel.
 
 
     # Begin parent selection
@@ -193,12 +185,12 @@ def parent_selection(population):
     for _ in range(int(len(population) / 2)):
         parents = []
         while len(parents) < 2:
-            r = random.uniform(0, total_roulette_size)
+            r = random.uniform(0, total_roulette_size)  # Random number between 0 and total roulette size.
             p = 0
-            index = 0
+            index = 0   # Allows access to the population individuals.
             for i in roulette_wheel:
                 if p + i > r:
-                    if population[index] not in parents:
+                    if population[index] not in parents:    # If the individual is not in the parents already.
                         parents.append(population[index])
                     break
                 else:
