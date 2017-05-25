@@ -48,3 +48,4 @@ for fs in possible_feature_sets:
 
 feature_sets.sort(key=len)
 print(*feature_sets, sep='\n')
+print(len(feature_sets))
